@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai4028-ai
+  labels:
+    app: ai4028-ai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai4028-ai
+  template:
+    metadata:
+      labels:
+        app: ai4028-ai
+    spec:
+      containers:
+        - name: ai4028-ai
+          image: minjuncho/ai4028-ai:2
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dev-snd
+              mountPath: /dev/snd
+            - name: dev-alsa
+              mountPath: /usr/share/alsa
+            - name: dev-asound
+              mountPath: /etc/asound.conf
+          ports:
+            - containerPort: 8501
+      volumes:
+        - name: dev-snd
+          hostPath:
+            path: /dev/snd
+            type: Directory
+        - name: dev-alsa
+          hostPath:
+            path: /usr/share/alsa
+            type: DirectoryOrCreate
+        - name: dev-asound
+          hostPath:
+            path: /etc/asound.conf
+            type: FileOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai4028-ai-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8501
+  selector:
+    app: ai4028-ai
+---
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: ai4028-ai
+#   namespace: blms
+#   annotations:
+#     kubernetes.io/ingress.class: traefik-external
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`www.test.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-ai-service
+#           port: 80
+#     - match: Host(`test.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-ai-service
+#           port: 80
+#       middlewares:
+#         - name: blms-headers
+# tls:
+#   secretName: local-example-com-tls
+---
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: ai4028-ai
+#   namespace: blms
+#   annotations:
+#     kubernetes.io/ingress.class: traefik-external
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`www.test.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-ai-service
+#           port: 80
+#     - match: Host(`test.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-ai-service
+#           port: 80
+#       middlewares:
+#         - name: default-headers
+# tls:
+#   secretName: local-example-com-tls
