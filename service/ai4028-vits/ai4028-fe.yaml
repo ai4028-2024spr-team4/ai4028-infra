@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai4028-vits
+  labels:
+    app: ai4028-vits
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai4028-vits
+  template:
+    metadata:
+      labels:
+        app: ai4028-vits
+    spec:
+      nodeName: node4
+      tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
+      containers:
+        - name: ai4028-vits
+          image: minjuncho/ai4028-vits
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai4028-vits-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: ai4028-vits
+---
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: ai4028-vits
+#   namespace: blms
+#   annotations:
+#     kubernetes.io/ingress.class: traefik-external
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`www.blms.transceiver.api.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-vits-service
+#           port: 80
+#     - match: Host(`blms.transceiver.api.local.example.com`)
+#       kind: Rule
+#       services:
+#         - name: ai4028-vits-service
+#           port: 80
+#       middlewares:
+#         - name: blms-headers
+# tls:
+#   secretName: local-example-com-tls
