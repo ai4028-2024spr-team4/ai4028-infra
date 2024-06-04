@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ai4028-ai
-          image: minjuncho/ai4028-fe:11
+          image: minjuncho/ai4028-fe:12
           ports:
             - containerPort: 8501
 ---
