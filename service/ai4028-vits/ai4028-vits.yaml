@@ -21,7 +21,7 @@ spec:
           operator: Exists
       containers:
         - name: ai4028-vits
-          image: minjuncho/ai4028-vits:14
+          image: minjuncho/ai4028-vits:15
           ports:
             - containerPort: 8000
           resources:
